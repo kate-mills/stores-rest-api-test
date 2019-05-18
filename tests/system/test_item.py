@@ -28,6 +28,7 @@ class ItemTest(BaseTest):
             self.assertEqual(r.status_code, 404)
 
     def test_item_found(self):
+        d_expected = {'id': 1, 'name': 'test', 'price': 17.99}
         with self.app() as c:
             with self.app_context():
                 StoreModel('test').save_to_db()
@@ -35,7 +36,7 @@ class ItemTest(BaseTest):
                 r = c.get('/item/test', headers={'Authorization': self.auth_header})
 
                 self.assertEqual(r.status_code, 200)
-                self.assertDictEqual(d1={'name': 'test', 'price': 17.99},
+                self.assertDictEqual(d_expected,
                                      d2=json.loads(r.data))
 
     def test_delete_item(self):
@@ -50,6 +51,7 @@ class ItemTest(BaseTest):
                                      d2=json.loads(r.data))
 
     def test_create_item(self):
+        d_expected = {'id': 1, 'name': 'test', 'price': 17.99}
         with self.app() as c:
             with self.app_context():
                 StoreModel('test').save_to_db()
@@ -57,7 +59,7 @@ class ItemTest(BaseTest):
 
                 self.assertEqual(r.status_code, 201)
                 self.assertEqual(ItemModel.find_by_name('test').price, 17.99)
-                self.assertDictEqual(d1={'name': 'test', 'price': 17.99},
+                self.assertDictEqual(d_expected,
                                      d2=json.loads(r.data))
 
     def test_create_duplicate_item(self):
@@ -70,6 +72,7 @@ class ItemTest(BaseTest):
                 self.assertEqual(r.status_code, 400)
 
     def test_put_item(self):
+        expected_dict = {'id': 1, 'name': 'test', 'price': 17.99}
         with self.app() as c:
             with self.app_context():
                 StoreModel('test').save_to_db()
@@ -77,7 +80,7 @@ class ItemTest(BaseTest):
 
                 self.assertEqual(r.status_code, 200)
                 self.assertEqual(ItemModel.find_by_name('test').price, 17.99)
-                self.assertDictEqual(d1={'name': 'test', 'price': 17.99},
+                self.assertDictEqual(expected_dict,
                                      d2=json.loads(r.data))
 
     def test_put_update_item(self):
@@ -91,11 +94,12 @@ class ItemTest(BaseTest):
                 self.assertEqual(ItemModel.find_by_name('test').price, 18.99)
 
     def test_item_list(self):
+        expected = {'items': [{'id': 1, 'name': 'test', 'price': 17.99}]}
         with self.app() as c:
             with self.app_context():
                 StoreModel('test').save_to_db()
                 ItemModel('test', 17.99, 1).save_to_db()
                 r = c.get('/items')
 
-                self.assertDictEqual(d1={'items': [{'name': 'test', 'price': 17.99}]},
+                self.assertDictEqual(expected,
                                      d2=json.loads(r.data))

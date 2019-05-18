@@ -5,13 +5,14 @@ from tests.base_test import BaseTest
 
 class StoreTest(BaseTest):
     def test_create_store(self):
+        d_expected = {'id': 1, 'items': [], 'name': 'test'}
         with self.app() as c:
             with self.app_context():
                 response = c.post('/store/test')
                 self.assertEqual(response.status_code, 201)
                 self.assertIsNotNone(StoreModel.find_by_name('test'))
-                self.assertDictEqual({'name': 'test', 'items': []},
-                                     json.load(response.data))
+                self.assertDictEqual(d_expected,
+                                     json.loads(response.data))
 
 
 
