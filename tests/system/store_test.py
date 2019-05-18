@@ -11,16 +11,18 @@ class StoreTest(BaseTest):
             self.assertEqual(r.status_code, 404)
 
     def test_store_found(self):
+        d_expected = {'id': 1, 'items': [], 'name': 'test'}
         with self.app() as c:
             with self.app_context():
                 StoreModel('test').save_to_db()
                 r = c.get('/store/test')
 
                 self.assertEqual(r.status_code, 200)
-                self.assertDictEqual(d1={'name': 'test', 'items': []},
+                self.assertDictEqual(d_expected,
                                      d2=json.loads(r.data))
 
     def test_store_with_items_found(self):
+        d_expected = {'id': 1, 'items': [{'id': 1, 'name': 'test', 'price': 2.99}], 'name': 'test'}
         with self.app() as c:
             with self.app_context():
                 StoreModel('test').save_to_db()
@@ -28,7 +30,7 @@ class StoreTest(BaseTest):
                 r = c.get('/store/test')
 
                 self.assertEqual(r.status_code, 200)
-                self.assertDictEqual(d1={'name': 'test', 'items': [{'name': 'test', 'price': 2.99}]},
+                self.assertDictEqual(d_expected,
                                      d2=json.loads(r.data))
 
     def test_delete_store(self):
@@ -42,13 +44,14 @@ class StoreTest(BaseTest):
                                      d2=json.loads(r.data))
 
     def test_create_store(self):
+        d_expected = {'id': 1, 'items': [], 'name': 'test'}
         with self.app() as c:
             with self.app_context():
                 r = c.post('/store/test')
 
                 self.assertEqual(r.status_code, 201)
                 self.assertIsNotNone(StoreModel.find_by_name('test'))
-                self.assertDictEqual(d1={'name': 'test', 'items': []},
+                self.assertDictEqual(d_expected,
                                      d2=json.loads(r.data))
 
     def test_create_duplicate_store(self):
@@ -60,20 +63,23 @@ class StoreTest(BaseTest):
                 self.assertEqual(r.status_code, 400)
 
     def test_store_list(self):
+        d_expected = {'stores': [{'id': 1, 'items': [], 'name': 'test'}]}
         with self.app() as c:
             with self.app_context():
                 StoreModel('test').save_to_db()
                 r = c.get('/stores')
 
-                self.assertDictEqual(d1={'stores': [{'name': 'test', 'items': []}]},
+                self.assertDictEqual(d_expected,
                                      d2=json.loads(r.data))
 
     def test_store_with_items_list(self):
+        d_expected = {'stores': [{'id': 1,'items': [{'id': 1, 'name': 'test', 'price': 17.99}], 'name': 'test'}]}
         with self.app() as c:
             with self.app_context():
                 StoreModel('test').save_to_db()
                 ItemModel('test', 17.99, 1).save_to_db()
                 r = c.get('/stores')
 
-                self.assertDictEqual(d1={'stores': [{'name': 'test', 'items': [{'name': 'test', 'price': 17.99}]}]},
-                                     d2=json.loads(r.data))
+                self.assertDictEqual(d_expected,
+                        d2=json.loads(r.data))
+
